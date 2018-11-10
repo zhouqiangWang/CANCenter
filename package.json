@@ -1,0 +1,19 @@
+{
+  "name": "cancenter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhouqiangWang/CANCenter.git"
+  },
+  "author": "Joe Wang (zhouqiang.wang@hotmail.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhouqiangWang/CANCenter/issues"
+  },
+  "homepage": "https://github.com/zhouqiangWang/CANCenter#readme"
+}
