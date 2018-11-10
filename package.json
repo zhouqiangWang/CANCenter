@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/zhouqiangWang/CANCenter/issues"
   },
-  "homepage": "https://github.com/zhouqiangWang/CANCenter#readme"
+  "homepage": "https://github.com/zhouqiangWang/CANCenter#readme",
+  "dependencies": {
+    "ffi": "^2.2.0"
+  }
 }
