@@ -56,6 +56,8 @@ let VCI_CAN_OBJ = refStruct({
 	Reserved: refArray('uint8', 3)	//reserved
 });
 
+const CanObjArray = refArray(VCI_CAN_OBJ);
+
 let VciConfigPtr = ref.refType(VCI_INIT_CONFIG);
 let VciConfigExPtr = ref.refType(VCI_INIT_CONFIG_EX);
 let VciBoardInfoPtr = ref.refType(VCI_BOARD_INFO_EX);
@@ -75,8 +77,8 @@ const canLib = ffi.Library("./lib/linux/64bit/libGinkgo_Driver.so", {
   'VCI_ResetCAN': ['uint32', ['uint32', 'uint32', 'uint32']],
   'VCI_RegisterReceiveCallback': ['uint32', ['uint32', 'pointer']],
   'VCI_LogoutReceiveCallback': ['uint32', ['uint32']],
-  'VCI_Transmit': ['uint32', ['uint32', 'uint32', 'uint32', VciCanObjPtr, 'uint32']],
-  'VCI_Receive': ['uint32', ['uint32', 'uint32', 'uint32', VciCanObjPtr, 'uint32' ,'uint32']]
+  'VCI_Transmit': ['uint32', ['uint32', 'uint32', 'uint32', CanObjArray, 'uint32']],
+  'VCI_Receive': ['uint32', ['uint32', 'uint32', 'uint32', CanObjArray, 'uint32' ,'uint32']]
 });
 
 let boardInfo = new VCI_BOARD_INFO_EX();
@@ -96,23 +98,37 @@ initConfig.AccMask = 0xFFFFFFFF;
 initConfig.Filter = 1;
 initConfig.Mode = 0;
 initConfig.Timing0 = 0x00;
-initConfig.Timing1 = 0x14;
+initConfig.Timing1 = 0x1C;
 
 let retInit = canLib.VCI_InitCAN(VCI_USBCAN2, 0, 0, initConfig.ref());
 console.log("Init device result = ", retInit);
 
+
 let getDataCallback = ffi.Callback('void', ['uint32', 'uint32', 'uint32'],
   function(devIndex, canIndex, len) {
-    let dataNum = canLib.VCI_GetReceiveNum(devIndex, canIndex, len);
+    console.log("getDataCallback :");
     console.log("devIndex: ", devIndex);
     console.log("canIndex: ", canIndex);
     console.log("len: ", len);
+    let dataNum = canLib.VCI_GetReceiveNum(VCI_USBCAN2, devIndex, canIndex);
+    console.log("dataNum: ", dataNum);
     if (dataNum > 0) {
-      canReceiveData = refArray(VCI_CAN_OBJ, dataNum);
-      canLib.VCI_Receive(VCI_USBCAN2, devIndex, canIndex, canReceiveData.ref(), dataNum, 0);
-      console.log("receiveData = ", canReceiveData);
+      canReceiveData = new CanObjArray(2);
+      canLib.VCI_Receive(VCI_USBCAN2, devIndex, canIndex, canReceiveData, dataNum, 0);
+      // console.log("receiveData = ", canReceiveData);
       for (let i = 0; i < dataNum; i++) {
+        console.log("callback got");
+        console.log("--CAN_ReceiveData.RemoteFlag = ", canReceiveData[i].RemoteFlag);
+        console.log("--CAN_ReceiveData.ExternFlag = ", canReceiveData[i].ExternFlag);
+        console.log("--CAN_ReceiveData.ID = ", canReceiveData[i].ID);
+        console.log("--CAN_ReceiveData.DataLen = ", canReceiveData[i].DataLen);
+        console.log("--CAN_ReceiveData.Data:");
+        for (let j = 0; j < canReceiveData[i].DataLen; j++) {
+          console.log("%02X ", canReceiveData[i].Data[j]);
+        }
 
+        console.log("callback TimeStamp")
+        console.log("--CAN_ReceiveData.TimeStamp = ", canReceiveData[i].TimeStamp)
       }
     }
   });
@@ -122,23 +138,22 @@ console.log("result of VCI_RegisterReceiveCallback = ", resReg);
 let retStart = canLib.VCI_StartCAN(VCI_USBCAN2, 0, 0);
 console.log("result of VCI_StartCAN : ", retStart);
 
-var CanObjArray = refArray(VCI_CAN_OBJ);
 let canSendData = new CanObjArray(2);
 
-for (let i = 0; i < 2; i++) {
-  canSendData[i].DataLen = 8;
-  for (let j = 0; j < canSendData[i].DataLen; j++) {
-    canSendData[i].Data[j] = i + j;
-  }
-  canSendData[i].ExternFlag = 0;
-  canSendData[i].RemoteFlag = 0;
-  canSendData[i].ID = 0x155+i;
-  canSendData[i].SendType = 2;
-}
-// console.log("canSendData[1] = ", canSendData[1]);
-console.log("typeof canSendData = ", typeof canSendData);
-resSent = canLib.VCI_Transmit(VCI_USBCAN2, 0, 0, canSendData.ref(), 2);
-console.log("result of send : ", resSent);
+// for (let i = 0; i < 2; i++) {
+//   canSendData[i].DataLen = 8;
+//   for (let j = 0; j < canSendData[i].DataLen; j++) {
+//     canSendData[i].Data[j] = i + j + 3;
+//   }
+//   canSendData[i].ExternFlag = 0;
+//   canSendData[i].RemoteFlag = 0;
+//   canSendData[i].ID = 0x155+i;
+//   canSendData[i].SendType = 2;
+// }
+// // console.log("canSendData[1] = ", canSendData[1]);
+// console.log("typeof canSendData = ", typeof canSendData);
+// resSent = canLib.VCI_Transmit(VCI_USBCAN2, 0, 0, canSendData.ref(), 2);
+// console.log("result of send : ", resSent);
 
 setTimeout(() => {
   console.log("Enter the enter to continue");
