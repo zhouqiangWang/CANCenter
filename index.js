@@ -60,22 +60,24 @@ let VciConfigPtr = ref.refType(VCI_INIT_CONFIG);
 let VciConfigExPtr = ref.refType(VCI_INIT_CONFIG_EX);
 let VciBoardInfoPtr = ref.refType(VCI_BOARD_INFO_EX);
 
-const canLib = ffi.Library("./lib/linux/64bit/libGinkgo_Driver.so", {
-  'VCI_ScanDevice': ['uint32', ['uint8']],
-  'VCI_OpenDevice': ['uint32', ['uint32', 'uint32', 'uint32']],
-  'VCI_CloseDevice': ['uint32', ['uint32', 'uint32']],
-  'VCI_InitCAN': ['uint32', ['uint32', 'uint32', 'uint32', VciConfigPtr]],
-  'VCI_InitCANEx': ['uint32', ['uint32', 'uint32', 'uint32', VciConfigExPtr]],
-  'VCI_ReadBoardInfoEx': ['uint32', ['uint32', VciBoardInfoPtr]],
-  'VCI_GetReceiveNum': ['uint32', ['uint32', 'uint32', 'uint32']],
-  'VCI_ClearBuffer': ['uint32', ['uint32', 'uint32', 'uint32']],
-  'VCI_StartCAN': ['uint32', ['uint32', 'uint32', 'uint32']],
-  'VCI_ResetCAN': ['uint32', ['uint32', 'uint32', 'uint32']],
-  'VCI_RegisterReceiveCallback': ['uint32', ['uint32', 'pointer']],
-  'VCI_LogoutReceiveCallback': ['uint32', ['uint32']],
-  'VCI_Transmit': ['uint32', ['uint32', 'uint32', 'uint32', CanObjArray, 'uint32']],
-  'VCI_Receive': ['uint32', ['uint32', 'uint32', 'uint32', CanObjArray, 'uint32' ,'uint32']]
-});
+// const canLib = ffi.Library("./lib/linux/64bit/libGinkgo_Driver.so", {
+//   'VCI_ScanDevice': ['uint32', ['uint8']],
+//   'VCI_OpenDevice': ['uint32', ['uint32', 'uint32', 'uint32']],
+//   'VCI_CloseDevice': ['uint32', ['uint32', 'uint32']],
+//   'VCI_InitCAN': ['uint32', ['uint32', 'uint32', 'uint32', VciConfigPtr]],
+//   'VCI_InitCANEx': ['uint32', ['uint32', 'uint32', 'uint32', VciConfigExPtr]],
+//   'VCI_ReadBoardInfoEx': ['uint32', ['uint32', VciBoardInfoPtr]],
+//   'VCI_GetReceiveNum': ['uint32', ['uint32', 'uint32', 'uint32']],
+//   'VCI_ClearBuffer': ['uint32', ['uint32', 'uint32', 'uint32']],
+//   'VCI_StartCAN': ['uint32', ['uint32', 'uint32', 'uint32']],
+//   'VCI_ResetCAN': ['uint32', ['uint32', 'uint32', 'uint32']],
+//   'VCI_RegisterReceiveCallback': ['uint32', ['uint32', 'pointer']],
+//   'VCI_LogoutReceiveCallback': ['uint32', ['uint32']],
+//   'VCI_Transmit': ['uint32', ['uint32', 'uint32', 'uint32', CanObjArray, 'uint32']],
+//   'VCI_Receive': ['uint32', ['uint32', 'uint32', 'uint32', CanObjArray, 'uint32' ,'uint32']]
+// });
+
+const canLib = CANBus.CanLib;
 
 let boardInfo = new CANBus.VCI_BOARD_INFO_EX();
 let deviceN = canLib.VCI_ScanDevice(1);
@@ -108,7 +110,7 @@ let getDataCallback = ffi.Callback('void', ['uint32', 'uint32', 'uint32'],
       let dataNum = canLib.VCI_GetReceiveNum(CANBus.VCI_USBCAN2, devIndex, canIndex);
       console.log("dataNum: ", dataNum);
       if (dataNum > 0) {
-        canReceiveData = new CanObjArray(2);
+        canReceiveData = new CANBus.CanObjArray(2);
         canLib.VCI_Receive(CANBus.VCI_USBCAN2, devIndex, canIndex, canReceiveData, dataNum, 0);
         // console.log("receiveData = ", canReceiveData);
         for (let i = 0; i < dataNum; i++) {

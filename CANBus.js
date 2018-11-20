@@ -53,7 +53,7 @@ let VCI_CAN_OBJ = refStruct({
 	Reserved: refArray('uint8', 3)	//reserved
 });
 
-const CanObjArray = refArray(VCI_CAN_OBJ);
+let CanObjArray = refArray(VCI_CAN_OBJ);
 
 let VciConfigPtr = ref.refType(VCI_INIT_CONFIG);
 let VciConfigExPtr = ref.refType(VCI_INIT_CONFIG_EX);
