@@ -2,6 +2,7 @@ const ffi = require("ffi");
 
 const CANBus = require("./CANBus.js");
 const CanAPI = CANBus.CanLib;
+const LocalServerAPI = require('./data/LocalServer');
 
 const { StringDecoder } = require('string_decoder');
 const decoder = new StringDecoder('ascii');
@@ -28,6 +29,7 @@ initConfig.Timing1 = 0x1C;
 let retInit = CanAPI.VCI_InitCAN(CANBus.VCI_USBCAN2, 0, 0, initConfig.ref());
 console.log("Init device result = ", retInit);
 
+
 let getDataCallback = ffi.Callback('void', ['uint32', 'uint32', 'uint32'],
     function(devIndex, canIndex, len) {
       console.log("getDataCallback :");
@@ -36,6 +38,9 @@ let getDataCallback = ffi.Callback('void', ['uint32', 'uint32', 'uint32'],
       console.log("len: ", len);
       let dataNum = CanAPI.VCI_GetReceiveNum(CANBus.VCI_USBCAN2, devIndex, canIndex);
       console.log("dataNum: ", dataNum);
+
+			let now = new Date().getTime();
+
       if (dataNum > 0) {
         canReceiveData = new CANBus.CanObjArray(2);
         CanAPI.VCI_Receive(CANBus.VCI_USBCAN2, devIndex, canIndex, canReceiveData, dataNum, 0);
@@ -47,12 +52,25 @@ let getDataCallback = ffi.Callback('void', ['uint32', 'uint32', 'uint32'],
           console.log("--CAN_ReceiveData.ID = ", canReceiveData[i].ID);
           console.log("--CAN_ReceiveData.DataLen = ", canReceiveData[i].DataLen);
           console.log("--CAN_ReceiveData.Data:");
+					let dataStr = "";
           for (let j = 0; j < canReceiveData[i].DataLen; j++) {
-            console.log("%02X ", canReceiveData[i].Data[j]);
+            dataStr = dataStr + canReceiveData[i].Data[j] + "|";
           }
+					console.log(dataStr);
+					let receivedInfo = {
+						data: dataStr
+					}
 
           console.log("callback TimeStamp")
           console.log("--CAN_ReceiveData.TimeStamp = ", canReceiveData[i].TimeStamp)
+
+					let postData = {
+						device_name: "C21_sample",
+						device_id: canReceiveData[i].ID.toString(),
+						time_stamp: now,
+						info:receivedInfo
+					};
+					LocalServerAPI.postDeviceInfo(postData);
         }
       }
     });
