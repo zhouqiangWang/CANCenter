@@ -24,7 +24,7 @@ let VCI_INIT_CONFIG_EX = refStruct({
   "CAN_SJW": ref.types.uint8,     // range: 1~4
   "CAN_BS1": ref.types.uint8,     // range: 1~16
   "CAN_BS2": ref.types.uint8,     // range: 1~8
-  "CAN_Mode": ref.types.uint8,    // CAN working mode. 0: normal,1: loopback,2: silent,3: silent loopback
+  "CAN_Mode": ref.types.uint8,    // CAN working mode. 0: normal,1: git@github.com:zhouqiangWang/CANCenter.gitloopback,2: silent,3: silent loopback
   "CAN_ABOM": ref.types.uint8,    // auto off line management. 0: prohibit,1: enable
   "CAN_NART": ref.types.uint8,    // text repeat send management. 0: enable text repeat sending,1: disable text repeat sending
   "CAN_RFLM": ref.types.uint8,    // FIFO lock management. 0: new text overwrite old, 1: ignore new text
@@ -77,7 +77,7 @@ const canLib = ffi.Library("./lib/linux/64bit/libGinkgo_Driver.so", {
   'VCI_Receive': ['uint32', ['uint32', 'uint32', 'uint32', CanObjArray, 'uint32' ,'uint32']]
 });
 
-let boardInfo = new VCI_BOARD_INFO_EX();
+let boardInfo = new CANBus.VCI_BOARD_INFO_EX();
 let deviceN = canLib.VCI_ScanDevice(1);
 let retDeviceInfo = canLib.VCI_ReadBoardInfoEx(0, boardInfo.ref());
 
@@ -88,7 +88,7 @@ console.log("--CAN_BoardInfo.FirmwareVersion = ", boardInfo.FirmwareVersion);
 console.log("--CAN_BoardInfo.HardwareVersion = ", boardInfo.HardwareVersion);
 console.log("--CAN_BoardInfo.SerialNumber = ", boardInfo.SerialNumber);
 
-let initConfig = new VCI_INIT_CONFIG();
+let initConfig = new CANBus.VCI_INIT_CONFIG();
 initConfig.AccCode = 0x00000000;
 initConfig.AccMask = 0xFFFFFFFF;
 initConfig.Filter = 1;
