@@ -7,6 +7,22 @@ const LocalServerAPI = require('./data/LocalServer');
 const { StringDecoder } = require('string_decoder');
 const decoder = new StringDecoder('ascii');
 
+const os = require('os');
+let IPv4;
+let interfaces = os.networkInterfaces();
+let hostName=os.hostname();
+// console.log("interface : ", interfaces);
+for (let key in interfaces) {
+	let alias = 0;
+	interfaces[key].forEach(function(details){
+		if (details.family == 'IPv4' && key == 'wlp4s0') {
+				IPv4 = details.address;
+		}
+	});
+}
+console.log('----------local IP: '+IPv4);
+console.log('----------local host: '+hostName);
+
 let boardInfo = new CANBus.VCI_BOARD_INFO_EX();
 let deviceN = CanAPI.VCI_ScanDevice(1);
 let retDeviceInfo = CanAPI.VCI_ReadBoardInfoEx(0, boardInfo.ref());
@@ -64,11 +80,16 @@ let getDataCallback = ffi.Callback('void', ['uint32', 'uint32', 'uint32'],
           console.log("callback TimeStamp")
           console.log("--CAN_ReceiveData.TimeStamp = ", canReceiveData[i].TimeStamp)
 
+					let endInfo = {
+						"ip": IPv4,
+						"end_device_id": canReceiveData[i].ID.toString()
+					}
 					let postData = {
 						device_name: "C21_sample",
 						device_id: canReceiveData[i].ID.toString(),
 						time_stamp: now,
-						info:receivedInfo
+						info:receivedInfo,
+						end_device: endInfo
 					};
 					LocalServerAPI.postDeviceInfo(postData);
         }
@@ -93,7 +114,7 @@ for (let i = 0; i < 2; i++) {
   canSendData[i].SendType = 2;
 }
 // console.log("canSendData[1] = ", canSendData[1]);
-console.log("typeof canSendData = ", typeof canSendData);
+// console.log("typeof canSendData = ", typeof canSendData);
 resSent = CanAPI.VCI_Transmit(CANBus.VCI_USBCAN2, 0, 0, canSendData.ref(), 2);
 console.log("result of send : ", resSent);
 
