@@ -1,6 +1,6 @@
 const ffi = require("ffi");
 
-const CANBus = require("./CANBus.js");
+const CANBus = require("./CAN/CANBus.js");
 const CanAPI = CANBus.CanLib;
 const LocalServerAPI = require('./data/LocalServer');
 
@@ -44,7 +44,6 @@ initConfig.Timing1 = 0x1C;
 
 let retInit = CanAPI.VCI_InitCAN(CANBus.VCI_USBCAN2, 0, 0, initConfig.ref());
 console.log("Init device result = ", retInit);
-
 
 let getDataCallback = ffi.Callback('void', ['uint32', 'uint32', 'uint32'],
     function(devIndex, canIndex, len) {

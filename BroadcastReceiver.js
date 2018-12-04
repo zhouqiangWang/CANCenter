@@ -1,6 +1,8 @@
 const dgram = require("dgram");
 const Receiver = dgram.createSocket("udp4");
 
+const CANInterface = require('./CAN/CANInterface');
+
 Receiver.on("listening", function() {
   let address = Receiver.address();
   console.log("UDP Receiver listening on " + address.address + ":" + address.port);
@@ -9,12 +11,10 @@ Receiver.on("listening", function() {
 
 Receiver.on("message", function(message, rinfo) {
   console.log("Message from: " + rinfo.address + ":" + rinfo.port + " - " + message);
-  console.log(message.toString());
+  let msgObj = JSON.parse(message);
 
-  let task = message.toString();
-  if (task === "discovery") {
-    
-  }
+  console.log("action = " + msgObj.action + ", value = " + msgObj.value);
+  CANInterface[msgObj.action].apply(CANInterface, msgObj.value);
 });
 
 Receiver.bind(6024);
