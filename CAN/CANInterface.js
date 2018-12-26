@@ -25,7 +25,7 @@ class CANInterface {
     initConfig.Timing0 = 0x00;
     initConfig.Timing1 = 0x1C;
 
-    let retInit = CanAPI.VCI_InitCAN(CANBus.VCI_USBCAN1, 0, 0, initConfig.ref());
+    let retInit = CanAPI.VCI_InitCAN(CANBus.VCI_USBCAN2, 0, 0, initConfig.ref());
     console.log("Init device result = ", retInit);
 
     // let retStart = CanAPI.VCI_StartCAN(CANBus.VCI_USBCAN2, 0, 0);
@@ -43,15 +43,17 @@ class CANInterface {
 
     canSendData[0].DataLen = 8;
     for (let j = 0; j < canSendData[0].DataLen; j++) {
-      canSendData[0].Data[j] = 0 + j + 3;
+      canSendData[0].Data[j] = 0;
     }
-    canSendData[0].Data[7] = seconds;
+    canSendData[0].Data[7] = parseInt(seconds);
+    console.log("Data[7] = ", canSendData[0].Data[7]);
     canSendData[0].ExternFlag = 0;
     canSendData[0].RemoteFlag = 0;
-    canSendData[0].ID = idNum;
+    canSendData[0].ID = 882;
     canSendData[0].SendType = 0;
+    console.log("Data to send : ", canSendData);
 
-    let resSent = CanAPI.VCI_Transmit(CANBus.VCI_USBCAN1, 0, 0, canSendData.ref(), 1);
+    let resSent = CanAPI.VCI_Transmit(CANBus.VCI_USBCAN2, 0, 0, canSendData.ref(), 1);
     console.log("result of send : ", resSent);
   }
 }

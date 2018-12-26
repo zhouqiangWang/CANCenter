@@ -42,7 +42,7 @@ let VCI_BOARD_INFO_EX = refStruct({
 let VCI_CAN_OBJ = refStruct({
   ID: 'uint32',			    //text ID.
 	TimeStamp: 'uint32',	//timestamp of the frame arriving, started from initialization of CAN controller
-	TimeFlag: 'uint8',  	// if using timestamp, 1: use TimeStamp, 0��not use. TimeFlag and TimeStamp is available when the frame is received frame
+	TimeFlag: 'uint8',  	// if using timestamp, 1: use TimeStamp, 0： not use. TimeFlag and TimeStamp is available when the frame is received frame
 	SendType: 'uint8',  	//send frame type. 0: normal send, 1: single send, 2: self send/receive, 3: single self send/receive, only available when
 						//the frame is send frame.(when device type is EG20T-CAN, send type will be set at VCI_InitCan and it's invalid set herein
 						//When set to self send/receive mode, EG20T-CAN can not receive from bus, only can receive from itself)
